@@ -72,7 +72,20 @@ export function normalizeIconObject( icon ) {
 
 	if ( icon.background ) {
 		const tinyBgColor = tinycolor( icon.background );
-		if ( ! icon.foreground ) {
+		let shouldComputeForeground = true;
+		if ( icon.foreground ) {
+			const tinyFgColor = tinycolor( icon.foreground );
+			if ( tinycolor.isReadable(
+				tinyBgColor,
+				tinyFgColor,
+				{ level: 'AA', size: 'large' }
+			) ) {
+				shouldComputeForeground = false;
+			} else if ( window ) {
+				window.console.warn( `The icon background color ${ icon.background } and the foreground color ${ icon.foreground } are not readable together. The foreground color was ignored, and an automatic foreground color computation was used.` );
+			}
+		}
+		if ( shouldComputeForeground ) {
 			const foreground = mostReadable(
 				tinyBgColor,
 				ICON_COLORS,
